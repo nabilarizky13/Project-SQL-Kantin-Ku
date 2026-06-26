@@ -25,7 +25,7 @@
         <div class="auth-card" style="max-width: 100%; display: flex; flex-wrap:wrap; gap: 40px; padding: 40px; text-align:left;">
             <div style="flex: 1; min-width:300px;">
                 <% if(menu.gambar) { %>
-                    <img src="/uploads/<%= menu.gambar %>" alt="<%= menu.nama_menu %>" style="width:100%; border-radius:var(--radius-md); box-shadow:var(--shadow-md);">
+                    <img src="<%= menu.gambar.startsWith('http') ? menu.gambar : '/uploads/' + menu.gambar %>" alt="<%= menu.nama_menu %>" style="width:100%; border-radius:var(--radius-md); box-shadow:var(--shadow-md);">
                 <% } else { %>
                     <div style="width:100%; height:300px; background:#ddd; border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>
                 <% } %>

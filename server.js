@@ -1,5 +1,7 @@
 const express = require('express');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+const pool = require('./config/db');
 const path = require('path');
 
 const app = express();
@@ -10,14 +12,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('assets')); // Serve static files from 'assets' directory
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(process.cwd(), 'views'));
 
 // Session configuration
 app.use(session({
+    store: new pgSession({
+        pool: pool,
+        tableName: 'session',
+        createTableIfMissing: false
+    }),
     secret: 'kantinku_secret_key',
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } // Set to true if using HTTPS
+    saveUninitialized: false,
+    cookie: { secure: false, maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
 }));
 
 // Middleware to pass session data to views
@@ -48,10 +55,10 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
 });
 
-// app.listen(port, () => {
-//     console.log(`Server is running at http://localhost:${port}`);
-// });
+if (process.env.NODE_ENV !== 'production' && !process.env.NETLIFY) {
+    app.listen(port, () => {
+        console.log(`Server is running at http://localhost:${port}`);
+    });
+}
 
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
-});
+module.exports = app;

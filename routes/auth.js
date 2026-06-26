@@ -18,7 +18,7 @@ router.get('/login', (req, res) => {
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        const [rows] = await db.execute('SELECT * FROM users WHERE username = ?', [username]);
+        const { rows } = await db.query('SELECT * FROM users WHERE username = $1', [username]);
         if (rows.length > 0) {
             const user = rows[0];
             const match = await bcrypt.compare(password, user.password.replace('$2y$', '$2a$')); // bcrypt compat for PHP hash
@@ -57,12 +57,12 @@ router.post('/register', async (req, res) => {
         return res.render('register', { error: 'Password tidak cocok!', success: null });
     }
     try {
-        const [cek] = await db.execute('SELECT id FROM users WHERE username = ?', [username]);
+        const { rows: cek } = await db.query('SELECT id FROM users WHERE username = $1', [username]);
         if (cek.length > 0) {
             return res.render('register', { error: 'Username sudah digunakan!', success: null });
         } else {
             const hashedPassword = await bcrypt.hash(password, 10);
-            await db.execute('INSERT INTO users (nama, username, password, role) VALUES (?, ?, ?, ?)', 
+            await db.query('INSERT INTO users (nama, username, password, role) VALUES ($1, $2, $3, $4)', 
                 [nama, username, hashedPassword, 'pelanggan']);
             return res.render('register', { error: null, success: 'Pendaftaran berhasil! Silakan login.' });
         }

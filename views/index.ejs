@@ -43,7 +43,7 @@
                 <% menus.forEach(menu => { %>
                 <div class="menu-card">
                     <% if(menu.gambar) { %>
-                        <img src="/uploads/<%= menu.gambar %>" alt="<%= menu.nama_menu %>" class="menu-img">
+                        <img src="<%= menu.gambar.startsWith('http') ? menu.gambar : '/uploads/' + menu.gambar %>" alt="<%= menu.nama_menu %>" class="menu-img">
                     <% } else { %>
                         <div class="menu-img" style="background:#ddd; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>
                     <% } %>
