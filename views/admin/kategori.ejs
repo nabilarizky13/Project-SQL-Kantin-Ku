@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Kategori - KantinKu</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">KantinKu <span style="font-size: 1rem; font-weight: normal; color: var(--gray-600);">Admin Panel</span></div>
+        <div class="nav-links">
+            <a href="/admin">Dashboard</a>
+            <a href="/admin/kategori">Kategori</a>
+            <a href="/admin/menu">Menu</a>
+            <a href="/admin/pesanan">Pesanan</a>
+            <a href="/logout" class="btn-outline-danger btn-sm" style="margin-left: 15px; padding: 5px 15px;">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+
+<div class="page-header">
+    <h1>Kelola Kategori</h1>
+</div>
+
+<div style="display: flex; gap: 30px; align-items: flex-start; flex-wrap: wrap;">
+    <div class="auth-card" style="flex: 1; min-width: 300px; padding: 20px; text-align: left;">
+        <h3 style="margin-bottom: 20px;"><%= edit_data ? 'Edit Kategori' : 'Tambah Kategori' %></h3>
+        <form action="/admin/kategori" method="POST">
+            <% if (edit_data) { %>
+                <input type="hidden" name="id" value="<%= edit_data.id %>">
+            <% } %>
+            <div class="form-group">
+                <label for="nama_kategori">Nama Kategori</label>
+                <input type="text" name="nama_kategori" id="nama_kategori" class="form-control" required value="<%= edit_data ? edit_data.nama_kategori : '' %>">
+            </div>
+            <button type="submit" class="btn-primary" style="margin-top: 10px;"><%= edit_data ? 'Update' : 'Simpan' %></button>
+            <% if (edit_data) { %>
+                <a href="/admin/kategori" class="btn-secondary" style="display:inline-block; text-align:center; width: 100%; margin-top: 10px; background:var(--gray-600);">Batal</a>
+            <% } %>
+        </form>
+    </div>
+
+    <div class="table-container" style="flex: 2; min-width: 300px;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nama Kategori</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (kategoris.length > 0) {
+                    kategoris.forEach(row => { %>
+                <tr>
+                    <td><%= row.id %></td>
+                    <td><%= row.nama_kategori %></td>
+                    <td>
+                        <div class="action-btns">
+                            <a href="?edit=<%= row.id %>" class="btn-edit">Edit</a>
+                            <a href="?hapus=<%= row.id %>" class="btn-delete" onclick="return confirm('Yakin hapus kategori ini?')">Hapus</a>
+                        </div>
+                    </td>
+                </tr>
+                <% }) } else { %>
+                <tr><td colspan="3" style="text-align:center;">Data kosong</td></tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    </div>
+</body>
+</html>

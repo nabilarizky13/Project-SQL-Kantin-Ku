@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keranjang - KantinKu</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">KantinKu</div>
+        <div class="nav-links">
+            <a href="/">Beranda</a>
+            <a href="/pesanan_saya">Pesanan Saya</a>
+            <a href="/keranjang" class="cart-icon" style="color:var(--primary); font-weight:600;">
+                Keranjang <span class="cart-count"><%= cart_count %></span>
+            </a>
+            <a href="/logout" class="btn-outline-danger btn-sm" style="margin-left: 15px; padding: 5px 15px;">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Keranjang Belanja</h1>
+        </div>
+
+        <div style="display:flex; gap:30px; align-items:flex-start; flex-wrap:wrap;">
+            <div class="table-container" style="flex:2; min-width:300px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Menu</th>
+                            <th>Harga</th>
+                            <th>Jumlah</th>
+                            <th>Total</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% 
+                        let total_belanja = 0;
+                        if(keranjang_items.length > 0) { 
+                            keranjang_items.forEach(item => {
+                                const subtotal = item.harga * item.jumlah;
+                                total_belanja += subtotal;
+                        %>
+                        <tr>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:15px;">
+                                    <% if(item.gambar) { %>
+                                        <img src="/uploads/<%= item.gambar %>" style="width:50px; height:50px; object-fit:cover; border-radius:8px;">
+                                    <% } %>
+                                    <strong><%= item.nama_menu %></strong>
+                                </div>
+                            </td>
+                            <td>Rp <%= new Intl.NumberFormat('id-ID').format(item.harga) %></td>
+                            <td><%= item.jumlah %></td>
+                            <td>Rp <%= new Intl.NumberFormat('id-ID').format(subtotal) %></td>
+                            <td>
+                                <a href="/keranjang?hapus=<%= item.keranjang_id %>" class="btn-delete" style="padding: 5px 10px; font-size:0.8rem;" onclick="return confirm('Hapus dari keranjang?')">Hapus</a>
+                            </td>
+                        </tr>
+                        <% }) } else { %>
+                        <tr><td colspan="5" style="text-align:center; padding:30px;">Keranjang Anda masih kosong. <br><br><a href="/" class="btn-primary" style="display:inline-block; width:auto;">Belanja Sekarang</a></td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <% if(keranjang_items.length > 0) { %>
+            <div class="auth-card" style="flex:1; min-width:300px; padding:30px; text-align:left;">
+                <h3 style="margin-bottom:20px;">Ringkasan Belanja</h3>
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:var(--gray-600);">
+                    <span>Total Item</span>
+                    <span><%= cart_count %></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:25px; font-size:1.25rem; font-weight:700; border-top:1px solid var(--gray-200); padding-top:15px;">
+                    <span>Total Harga</span>
+                    <span style="color:var(--primary);">Rp <%= new Intl.NumberFormat('id-ID').format(total_belanja) %></span>
+                </div>
+                
+                <form action="/keranjang" method="POST">
+                    <input type="hidden" name="checkout" value="1">
+                    <button type="submit" class="btn-primary" style="font-size:1.1rem; padding:15px;">Checkout Sekarang</button>
+                </form>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

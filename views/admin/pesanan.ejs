@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Pesanan - KantinKu</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">KantinKu <span style="font-size: 1rem; font-weight: normal; color: var(--gray-600);">Admin Panel</span></div>
+        <div class="nav-links">
+            <a href="/admin">Dashboard</a>
+            <a href="/admin/kategori">Kategori</a>
+            <a href="/admin/menu">Menu</a>
+            <a href="/admin/pesanan">Pesanan</a>
+            <a href="/logout" class="btn-outline-danger btn-sm" style="margin-left: 15px; padding: 5px 15px;">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+
+<div class="page-header">
+    <h1>Kelola Pesanan</h1>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>ID Pesanan</th>
+                <th>Pelanggan</th>
+                <th>Tanggal</th>
+                <th>Total Harga</th>
+                <th>Status</th>
+                <th>Aksi Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (pesanans.length > 0) {
+                pesanans.forEach(row => { %>
+            <tr>
+                <td>#<%= row.id %></td>
+                <td><%= row.nama %></td>
+                <td><%= new Date(row.tanggal_pesan).toLocaleString('id-ID', {day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'}) %></td>
+                <td>Rp <%= new Intl.NumberFormat('id-ID').format(row.total_harga) %></td>
+                <td><span class="badge badge-<%= row.status %>"><%= row.status.charAt(0).toUpperCase() + row.status.slice(1) %></span></td>
+                <td>
+                    <div class="action-btns">
+                        <% if (row.status === 'diproses') { %>
+                        <a href="?id=<%= row.id %>&update_status=selesai" class="btn-edit" style="background:#00b894;">Selesai</a>
+                        <a href="?id=<%= row.id %>&update_status=dibatalkan" class="btn-delete" onclick="return confirm('Batalkan pesanan?')">Batal</a>
+                        <% } else { %>
+                        <span style="color:var(--gray-600); font-size:0.8rem;">Tidak ada aksi</span>
+                        <% } %>
+                    </div>
+                </td>
+            </tr>
+            <% }) } else { %>
+            <tr><td colspan="6" style="text-align:center;">Belum ada pesanan</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KantinKu - Beranda</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">KantinKu</div>
+        <div class="nav-links">
+            <a href="/" style="color:var(--primary); font-weight:600;">Beranda</a>
+            <a href="/pesanan_saya">Pesanan Saya</a>
+            <a href="/keranjang" class="cart-icon">
+                Keranjang <span class="cart-count"><%= cart_count %></span>
+            </a>
+            <a href="/logout" class="btn-outline-danger btn-sm" style="margin-left: 15px; padding: 5px 15px;">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header" style="flex-wrap:wrap; gap:20px;">
+            <div>
+                <h1>Halo, <%= nama %>!</h1>
+                <p style="color:var(--gray-600); margin-top:5px;">Mau pesan apa hari ini?</p>
+            </div>
+            <div>
+                <form action="/" method="GET" style="display:flex; gap:10px;">
+                    <select name="kategori" class="form-control" style="width:auto; min-width:150px;">
+                        <option value="">Semua Kategori</option>
+                        <% kategoris.forEach(k => { %>
+                            <option value="<%= k.id %>" <%= kategori_filter === k.id ? 'selected' : '' %>><%= k.nama_kategori %></option>
+                        <% }) %>
+                    </select>
+                    <button type="submit" class="btn-primary" style="width:auto; padding:8px 20px;">Filter</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="menu-grid">
+            <% if(menus.length > 0) { %>
+                <% menus.forEach(menu => { %>
+                <div class="menu-card">
+                    <% if(menu.gambar) { %>
+                        <img src="/uploads/<%= menu.gambar %>" alt="<%= menu.nama_menu %>" class="menu-img">
+                    <% } else { %>
+                        <div class="menu-img" style="background:#ddd; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>
+                    <% } %>
+                    <div class="menu-content">
+                        <div class="menu-title"><%= menu.nama_menu %></div>
+                        <div class="menu-desc"><%= menu.deskripsi.substring(0, 80) %>...</div>
+                        <div class="menu-footer">
+                            <div class="menu-price">Rp <%= new Intl.NumberFormat('id-ID').format(menu.harga) %></div>
+                            <a href="/detail?id=<%= menu.id %>" class="btn-primary" style="width:auto; padding:8px 16px; font-size:0.9rem;">Lihat Detail</a>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            <% } else { %>
+                <div style="grid-column: 1/-1; text-align:center; padding:50px; color:var(--gray-600);">
+                    Belum ada menu yang tersedia.
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <footer class="footer">
+        &copy; <%= new Date().getFullYear() %> KantinKu - Pesan makan jadi lebih mudah.
+    </footer>
+</body>
+</html>

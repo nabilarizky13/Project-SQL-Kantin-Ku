@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesanan Saya - KantinKu</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">KantinKu</div>
+        <div class="nav-links">
+            <a href="/">Beranda</a>
+            <a href="/pesanan_saya" style="color:var(--primary); font-weight:600;">Pesanan Saya</a>
+            <a href="/keranjang" class="cart-icon">
+                Keranjang <span class="cart-count"><%= cart_count %></span>
+            </a>
+            <a href="/logout" class="btn-outline-danger btn-sm" style="margin-left: 15px; padding: 5px 15px;">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Pesanan Saya</h1>
+        </div>
+
+        <% if(success) { %>
+            <div class="alert alert-success">Pesanan berhasil dibuat! Silakan bayar di kasir kantin.</div>
+        <% } %>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID Pesanan</th>
+                        <th>Tanggal</th>
+                        <th>Menu yang Dipesan</th>
+                        <th>Total Harga</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if(pesanan.length > 0) { 
+                        pesanan.forEach(row => { %>
+                    <tr>
+                        <td><strong>#<%= row.id %></strong></td>
+                        <td><%= new Date(row.tanggal_pesan).toLocaleString('id-ID', {day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'}) %></td>
+                        <td style="color:var(--gray-600); font-size:0.9rem;"><%- row.menu_list.join('<br>') %></td>
+                        <td style="font-weight:700;">Rp <%= new Intl.NumberFormat('id-ID').format(row.total_harga) %></td>
+                        <td><span class="badge badge-<%= row.status %>"><%= row.status.charAt(0).toUpperCase() + row.status.slice(1) %></span></td>
+                    </tr>
+                    <% }) } else { %>
+                    <tr><td colspan="5" style="text-align:center; padding:30px;">Belum ada pesanan.<br><br><a href="/" class="btn-primary" style="display:inline-block; width:auto;">Mulai Pesan</a></td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

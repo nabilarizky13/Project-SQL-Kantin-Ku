@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Menu - KantinKu</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">KantinKu <span style="font-size: 1rem; font-weight: normal; color: var(--gray-600);">Admin Panel</span></div>
+        <div class="nav-links">
+            <a href="/admin">Dashboard</a>
+            <a href="/admin/kategori">Kategori</a>
+            <a href="/admin/menu">Menu</a>
+            <a href="/admin/pesanan">Pesanan</a>
+            <a href="/logout" class="btn-outline-danger btn-sm" style="margin-left: 15px; padding: 5px 15px;">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+
+<div class="page-header">
+    <h1>Kelola Menu</h1>
+    <% if (!edit_data) { %>
+    <button class="btn-primary" style="width: auto;" onclick="document.getElementById('form-tambah').style.display='block'">+ Tambah Menu</button>
+    <% } %>
+</div>
+
+<div id="form-tambah" style="<%= edit_data ? 'display:block;' : 'display:none;' %> margin-bottom: 30px;">
+    <div class="auth-card" style="max-width: 100%; padding: 20px; text-align: left;">
+        <h3 style="margin-bottom: 20px;"><%= edit_data ? 'Edit Menu' : 'Tambah Menu' %></h3>
+        <form action="/admin/menu" method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <% if (edit_data) { %>
+                <input type="hidden" name="id" value="<%= edit_data.id %>">
+            <% } %>
+            <div class="form-group" style="margin-bottom:0;">
+                <label for="nama_menu">Nama Menu</label>
+                <input type="text" name="nama_menu" id="nama_menu" class="form-control" required value="<%= edit_data ? edit_data.nama_menu : '' %>">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label for="kategori_id">Kategori</label>
+                <select name="kategori_id" id="kategori_id" class="form-control" required>
+                    <option value="">Pilih Kategori</option>
+                    <% kategoris.forEach(kat => { %>
+                        <option value="<%= kat.id %>" <%= (edit_data && edit_data.kategori_id === kat.id) ? 'selected' : '' %>><%= kat.nama_kategori %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label for="harga">Harga (Rp)</label>
+                <input type="number" name="harga" id="harga" class="form-control" required value="<%= edit_data ? edit_data.harga : '' %>">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label for="gambar">Gambar <%= edit_data ? '(Kosongkan jika tidak diubah)' : '' %></label>
+                <input type="file" name="gambar" id="gambar" class="form-control" accept="image/*" <%= edit_data ? '' : 'required' %>>
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1; margin-bottom:0;">
+                <label for="deskripsi">Deskripsi</label>
+                <textarea name="deskripsi" id="deskripsi" class="form-control" rows="3"><%= edit_data ? edit_data.deskripsi : '' %></textarea>
+            </div>
+            <div style="grid-column: 1 / -1; display: flex; gap: 10px;">
+                <button type="submit" class="btn-primary" style="width: 150px;"><%= edit_data ? 'Update' : 'Simpan' %></button>
+                <a href="/admin/menu" class="btn-secondary" style="width: 150px; text-align:center; background:var(--gray-600); padding: 12px; border-radius: var(--radius-sm);">Batal</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Gambar</th>
+                <th>Nama Menu</th>
+                <th>Kategori</th>
+                <th>Harga</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (menus.length > 0) {
+                menus.forEach(row => { %>
+            <tr>
+                <td>
+                    <% if (row.gambar) { %>
+                    <img src="/uploads/<%= row.gambar %>" alt="<%= row.nama_menu %>" style="width:50px; height:50px; object-fit:cover; border-radius:8px;">
+                    <% } else { %>
+                    <div style="width:50px; height:50px; background:#ddd; border-radius:8px;"></div>
+                    <% } %>
+                </td>
+                <td><strong><%= row.nama_menu %></strong></td>
+                <td><%= row.nama_kategori || 'Tidak ada' %></td>
+                <td>Rp <%= new Intl.NumberFormat('id-ID').format(row.harga) %></td>
+                <td>
+                    <div class="action-btns">
+                        <a href="?edit=<%= row.id %>" class="btn-edit">Edit</a>
+                        <a href="?hapus=<%= row.id %>" class="btn-delete" onclick="return confirm('Yakin hapus menu ini?')">Hapus</a>
+                    </div>
+                </td>
+            </tr>
+            <% }) } else { %>
+            <tr><td colspan="5" style="text-align:center;">Belum ada menu</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+    </div>
+</body>
+</html>

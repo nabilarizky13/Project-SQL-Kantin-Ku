@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar - KantinKu</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2>KantinKu</h2>
+            <p class="subtitle">Buat akun untuk mulai memesan</p>
+            
+            <% if (error) { %>
+                <div class="alert alert-danger"><%= error %></div>
+            <% } %>
+            <% if (success) { %>
+                <div class="alert alert-success"><%= success %></div>
+            <% } %>
+
+            <form action="/register" method="POST">
+                <div class="form-group">
+                    <label for="nama">Nama Lengkap</label>
+                    <input type="text" name="nama" id="nama" class="form-control" required placeholder="Masukkan nama lengkap">
+                </div>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" name="username" id="username" class="form-control" required placeholder="Buat username unik">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" class="form-control" required placeholder="Buat password">
+                </div>
+                <div class="form-group">
+                    <label for="konfirmasi_password">Konfirmasi Password</label>
+                    <input type="password" name="konfirmasi_password" id="konfirmasi_password" class="form-control" required placeholder="Ulangi password">
+                </div>
+                <button type="submit" class="btn-primary">Daftar</button>
+            </form>
+            <div class="auth-links">
+                Sudah punya akun? <a href="/login">Masuk di sini</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
