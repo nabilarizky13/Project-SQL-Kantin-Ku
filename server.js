@@ -19,7 +19,7 @@ app.use(session({
     store: new pgSession({
         pool: pool,
         tableName: 'session',
-        createTableIfMissing: false
+        createTableIfMissing: true
     }),
     secret: 'kantinku_secret_key',
     resave: false,
@@ -52,7 +52,7 @@ app.locals.base_url = (pathPath = '') => {
 // Error handling
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Something broke!');
+    res.status(500).send(`<h2>Error:</h2><pre>${err.message}</pre><small>Check Netlify function logs for details.</small>`);
 });
 
 if (process.env.NODE_ENV !== 'production' && !process.env.NETLIFY) {
