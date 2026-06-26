@@ -36,10 +36,7 @@ router.post('/login', async (req, res) => {
         }
     } catch (err) {
         console.error(err);
-        let errorMsg = 'Terjadi kesalahan sistem.';
-        if (err.code === 'ECONNREFUSED') errorMsg = 'Gagal terhubung ke database. Pastikan MySQL di XAMPP sudah menyala.';
-        if (err.code === 'ER_BAD_DB_ERROR') errorMsg = 'Database kantinku tidak ditemukan. Pastikan sudah import database.sql.';
-        return res.render('login', { error: errorMsg, success: false });
+        return res.render('login', { error: `DB Error: ${err.message}`, success: false });
     }
 });
 
