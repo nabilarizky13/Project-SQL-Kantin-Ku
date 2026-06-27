@@ -1,10 +1,17 @@
 [build]
   functions = "functions"
-  publish = "assets"
+  publish = "."
 
 [functions]
   included_files = ["views/**", "config/**", "routes/**"]
   node_bundler = "nft"
+
+# Sajikan folder RND sebagai file statis (harus SEBELUM catch-all)
+[[redirects]]
+  from = "/RND-Final-Project-SQL2/*"
+  to = "/RND-Final-Project-SQL2/:splat"
+  status = 200
+  force = false
 
 [[redirects]]
   from = "/*"
