@@ -1,0 +1,161 @@
+const fs = require('fs');
+
+const data = {
+  judulProyek: "KantinKu — Sistem Pemesanan Makanan Kantin Berbasis Web",
+  namaMahasiswa: "Nabila Rizky",
+  nim: "(NIM - Isi NIM kamu)",
+  kelasSemester: "Manajemen Informatika",
+  dosenPengampu: "(Dosen Pengampu)",
+  institusi: "Politeknik Negeri Lampung",
+  tglMulai: "2026-02-01",
+  tglSelesai: "2026-06-26",
+
+  latarBelakang: "Kantin merupakan salah satu fasilitas penting di lingkungan kampus Politeknik Negeri Lampung. Namun proses pemesanan makanan yang selama ini berjalan masih dilakukan secara manual: pelanggan harus datang langsung ke kantin, mengantri, dan memesan secara tatap muka. Hal ini sering menimbulkan antrean panjang, ketidakefisienan waktu, dan kesulitan bagi pengelola kantin dalam merekap pesanan serta memantau pendapatan.\n\nUntuk mengatasi permasalahan tersebut, dibangun aplikasi web bernama KantinKu yang memungkinkan pelanggan melihat menu, menambahkan item ke keranjang, dan melakukan checkout secara online. Admin kantin dapat mengelola data menu, kategori, dan memantau status pesanan langsung dari dashboard. Aplikasi ini menggunakan database relasional PostgreSQL yang di-hosting di Supabase dan di-deploy ke platform Netlify.",
+
+  rumusanMasalah: "1. Bagaimana merancang dan mengimplementasikan database relasional yang dapat menyimpan data pengguna, kategori menu, menu, keranjang, pesanan, dan detail pesanan secara terstruktur?\n2. Bagaimana membangun aplikasi web berbasis Node.js + Express.js yang mengintegrasikan operasi CRUD (Create, Read, Update, Delete) pada seluruh entitas data?\n3. Bagaimana mengimplementasikan sistem autentikasi berbasis sesi (session) untuk membedakan hak akses antara admin dan pelanggan?\n4. Bagaimana melakukan deployment aplikasi ke platform cloud (Netlify) dengan database PostgreSQL di Supabase sehingga dapat diakses secara online?",
+
+  tujuanProyek: "1. Merancang skema database relasional dengan 6 tabel (users, kategori, menu, keranjang, pesanan, detail_pesanan) beserta relasi foreign key yang sesuai.\n2. Mengimplementasikan operasi CRUD lengkap pada setiap entitas: manajemen menu dan kategori oleh admin, serta pemesanan dan keranjang belanja oleh pelanggan.\n3. Membangun sistem autentikasi pengguna dengan enkripsi password menggunakan bcrypt dan manajemen sesi berbasis PostgreSQL.\n4. Mengintegrasikan Supabase Storage untuk menyimpan gambar menu secara cloud.\n5. Melakukan deployment aplikasi ke Netlify sebagai serverless function agar dapat diakses oleh publik.",
+
+  lingkupDikerjakan: "- Manajemen pengguna (registrasi, login, logout) dengan role admin dan pelanggan\n- CRUD kategori menu (admin)\n- CRUD menu beserta upload gambar ke Supabase Storage (admin)\n- Tampilan beranda pelanggan dengan filter kategori\n- Detail produk dan tambah ke keranjang\n- Manajemen keranjang belanja (tambah, hapus, checkout)\n- Riwayat pesanan pelanggan\n- Dashboard admin: statistik pesanan, pendapatan, menu terbaru\n- Manajemen status pesanan oleh admin\n- Deployment ke Netlify + Supabase",
+
+  lingkupTidak: "- Notifikasi real-time (WebSocket / push notification)\n- Pembayaran online / payment gateway\n- Manajemen stok / inventaris bahan baku\n- Fitur rating dan ulasan menu\n- Aplikasi mobile (Android / iOS)\n- Multi-kantin / multi-tenant\n- Laporan keuangan dalam bentuk grafik",
+
+  targetUser: "Pelanggan kantin (mahasiswa, dosen, staf) Politeknik Negeri Lampung dan Admin/pengelola kantin yang mengelola menu dan pesanan.",
+
+  manfaat: "Bagi pelanggan: mempermudah proses pemesanan makanan tanpa harus mengantri fisik, serta dapat memantau riwayat pesanan secara online.\nBagi admin/pengelola: mempermudah pengelolaan menu, kategori, dan pemantauan pesanan serta pendapatan secara terpusat dan real-time melalui dashboard berbasis web.",
+
+  techStackDetail: "Arsitektur: aplikasi web full-stack berbasis Node.js dengan pola MVC (Model-View-Controller).\n- Backend: Node.js v18+ dengan framework Express.js v5\n- Database: PostgreSQL (hosting di Supabase) — driver pg (node-postgres)\n- Session Storage: PostgreSQL via connect-pg-simple\n- Frontend: HTML5, CSS3, EJS (Embedded JavaScript) template engine\n- File Storage: Supabase Storage (bucket menu-images) untuk gambar menu\n- Upload: Multer (memory storage, Netlify-compatible)\n- Autentikasi: Express-Session + bcrypt (enkripsi password)\n- Deployment: Netlify (serverless function via serverless-http)\n- ORM/Query: Raw SQL dengan parameterized query ($1, $2, ...)\n- Keamanan: parameterized query (mencegah SQL Injection), bcrypt hash password, validasi sesi per request",
+
+  folderStructureDetail: "kantinku/\n|-- server.js              # Entry point aplikasi\n|-- package.json           # Dependensi Node.js\n|-- netlify.toml           # Konfigurasi deployment Netlify\n|-- database.sql           # Skema MySQL (referensi lokal)\n|-- database_postgres.sql  # Skema PostgreSQL (production)\n|-- config/\n|   |-- db.js              # Koneksi pool PostgreSQL (pg)\n|   `-- supabase.js        # Klien Supabase Storage\n|-- routes/\n|   |-- auth.js            # Login, register, logout\n|   |-- index.js           # Halaman pelanggan (beranda, keranjang, pesanan)\n|   `-- admin.js           # Dashboard & CRUD admin\n|-- views/\n|   |-- login.ejs\n|   |-- register.ejs\n|   |-- index.ejs          # Beranda (daftar menu)\n|   |-- detail.ejs         # Detail menu\n|   |-- keranjang.ejs      # Keranjang belanja\n|   |-- pesanan_saya.ejs   # Riwayat pesanan pelanggan\n|   `-- admin/\n|       |-- index.ejs      # Dashboard admin\n|       |-- kategori.ejs   # CRUD kategori\n|       |-- menu.ejs       # CRUD menu\n|       `-- pesanan.ejs    # Manajemen pesanan\n|-- assets/\n|   `-- css/style.css      # Stylesheet global\n`-- functions/\n    `-- api.js             # Netlify serverless function wrapper",
+
+  userFlow: "Pelanggan: Buka aplikasi -> Login / Register -> Beranda (daftar menu, filter kategori) -> Klik \"Lihat Detail\" -> Pilih jumlah -> Tambah ke Keranjang -> Halaman Keranjang -> Checkout -> Riwayat Pesanan\nAdmin: Login (username: admin) -> Redirect ke Dashboard Admin -> Kelola Kategori (tambah/edit/hapus) -> Kelola Menu (tambah/edit/hapus + upload gambar) -> Kelola Pesanan (ubah status: diproses -> selesai / dibatalkan) -> Logout",
+
+  routingTable: "GET  /login              -> Form login\nPOST /login              -> Proses autentikasi\nGET  /register           -> Form registrasi\nPOST /register           -> Proses pendaftaran\nGET  /logout             -> Hapus sesi, redirect login\nGET  /                   -> Beranda (daftar menu + filter kategori)\nGET  /detail?id=:id      -> Detail menu\nPOST /detail?id=:id      -> Tambah ke keranjang\nGET  /keranjang          -> Halaman keranjang\nGET  /keranjang?hapus=:id-> Hapus item keranjang\nPOST /keranjang          -> Checkout pesanan\nGET  /pesanan_saya       -> Riwayat pesanan pelanggan\nGET  /admin              -> Dashboard admin\nGET  /admin/kategori     -> List + form CRUD kategori\nPOST /admin/kategori     -> Simpan / update kategori\nGET  /admin/menu         -> List + form CRUD menu\nPOST /admin/menu         -> Simpan / update menu (multipart)\nGET  /admin/pesanan      -> List pesanan semua pelanggan\nGET  /admin/pesanan?update_status=:s&id=:id -> Update status pesanan",
+
+  codeCreate: "-- INSERT menu baru\nINSERT INTO menu (kategori_id, nama_menu, deskripsi, harga, gambar)\nVALUES ($1, $2, $3, $4, $5);\n\n-- INSERT keranjang (cek duplikat dulu)\nINSERT INTO keranjang (user_id, menu_id, jumlah) VALUES ($1, $2, $3);\n\n-- INSERT pesanan + detail_pesanan\nINSERT INTO pesanan (user_id, total_harga, status)\nVALUES ($1, $2, 'diproses') RETURNING id;\n\nINSERT INTO detail_pesanan (pesanan_id, menu_id, jumlah, harga_satuan)\nVALUES ($1, $2, $3, $4);",
+
+  codeRead: "-- Baca semua menu dengan kategori (LEFT JOIN)\nSELECT m.*, k.nama_kategori\nFROM menu m\nLEFT JOIN kategori k ON m.kategori_id = k.id\nORDER BY m.id DESC;\n\n-- Baca keranjang pelanggan (JOIN menu)\nSELECT k.id AS keranjang_id, k.jumlah, m.*\nFROM keranjang k\nJOIN menu m ON k.menu_id = m.id\nWHERE k.user_id = $1;\n\n-- Baca pesanan dengan nama pelanggan (JOIN users)\nSELECT p.*, u.nama\nFROM pesanan p\nJOIN users u ON p.user_id = u.id\nORDER BY p.id DESC;\n\n-- Baca detail pesanan (JOIN menu)\nSELECT dp.jumlah, m.nama_menu\nFROM detail_pesanan dp\nJOIN menu m ON dp.menu_id = m.id\nWHERE dp.pesanan_id = $1;",
+
+  codeUpdate: "-- Update kategori\nUPDATE kategori SET nama_kategori = $1 WHERE id = $2;\n\n-- Update menu (tanpa gambar baru)\nUPDATE menu SET kategori_id=$1, nama_menu=$2, deskripsi=$3, harga=$4 WHERE id=$5;\n\n-- Update menu (dengan gambar baru)\nUPDATE menu SET kategori_id=$1, nama_menu=$2, deskripsi=$3, harga=$4, gambar=$5 WHERE id=$6;\n\n-- Update jumlah keranjang (jika item sudah ada)\nUPDATE keranjang SET jumlah = $1 WHERE id = $2;\n\n-- Update status pesanan oleh admin\nUPDATE pesanan SET status = $1 WHERE id = $2;",
+
+  codeDelete: "-- Hapus kategori (CASCADE ke menu)\nDELETE FROM kategori WHERE id = $1;\n\n-- Hapus menu (CASCADE ke keranjang & detail_pesanan)\nDELETE FROM menu WHERE id = $1;\n\n-- Hapus item dari keranjang pelanggan\nDELETE FROM keranjang WHERE id = $1 AND user_id = $2;\n\n-- Kosongkan keranjang setelah checkout\nDELETE FROM keranjang WHERE user_id = $1;",
+
+  metodeHosting: "VPS / Cloud",
+  urlHosting: "https://kantinku.netlify.app",
+
+  langkahDeploy: "1. Buat akun di Supabase, buat project dan jalankan database_postgres.sql di SQL Editor untuk membuat semua tabel.\n2. Ambil DATABASE_URL dari Supabase dan buat bucket \"menu-images\" di Supabase Storage (set public).\n3. Buat akun Netlify dan hubungkan dengan repository GitHub proyek ini.\n4. Tambahkan Environment Variables di Netlify: DATABASE_URL, SUPABASE_URL, SUPABASE_ANON_KEY.\n5. Netlify otomatis membaca netlify.toml: build functions dari folder /functions, semua request di-redirect ke /.netlify/functions/api.\n6. Lakukan push ke main branch — Netlify otomatis trigger build dan deploy.\n7. Uji coba aplikasi melalui URL deployment yang diberikan Netlify.",
+
+  konfigChange: "Lokal:\n- Database: MySQL / PostgreSQL lokal (localhost)\n- Config: file .env atau hardcode di config/db.js\n- Run: node server.js (port 3000)\n\nHosting (Netlify + Supabase):\n- Database: PostgreSQL Supabase (DATABASE_URL dari environment variable)\n- Storage: Supabase Storage bucket menu-images (SUPABASE_URL, SUPABASE_ANON_KEY)\n- Fungsi: serverless-http wrap Express app di functions/api.js\n- Semua request di-redirect via netlify.toml ke /.netlify/functions/api",
+
+  ringkasanPengujian: "Seluruh skenario pengujian fungsional telah dijalankan mencakup operasi CRUD pada semua entitas (kategori, menu, keranjang, pesanan), alur autentikasi (login/register/logout), validasi hak akses (admin vs pelanggan), dan proses checkout. Semua 18 skenario utama berhasil dijalankan sesuai harapan. Upload gambar ke Supabase Storage dan sesi berbasis PostgreSQL juga berjalan dengan baik.",
+
+  kendalaSolusiPengujian: "Kendala 1: Hash password dari PHP ($2y$) tidak kompatibel dengan bcrypt Node.js.\nSolusi: Replace $2y$ menjadi $2a$ saat bcrypt.compare() agar kompatibel.\n\nKendala 2: Multer disk storage tidak kompatibel dengan Netlify serverless (filesystem read-only).\nSolusi: Ganti ke memoryStorage() lalu upload langsung ke Supabase Storage.\n\nKendala 3: Session tidak persisten di serverless.\nSolusi: Gunakan connect-pg-simple untuk simpan sesi di tabel session di PostgreSQL Supabase.",
+
+  kesimpulanPengujian: "Sistem KantinKu dinyatakan layak digunakan. Seluruh fitur utama berjalan dengan baik pada lingkungan lokal maupun deployment Netlify. Tidak ada bug kritis yang ditemukan pada skenario pengujian.",
+
+  kesimpulan: "Aplikasi KantinKu berhasil dibangun sebagai sistem pemesanan makanan kantin berbasis web menggunakan Node.js, Express.js, PostgreSQL, dan EJS. Database relasional dengan 6 tabel (users, kategori, menu, keranjang, pesanan, detail_pesanan) berhasil dirancang dengan relasi foreign key yang tepat. Semua operasi CRUD telah diimplementasikan lengkap untuk semua entitas. Sistem autentikasi berbasis sesi dengan enkripsi bcrypt berhasil membedakan hak akses admin dan pelanggan. Aplikasi berhasil di-deploy ke Netlify dengan database PostgreSQL di Supabase dan dapat diakses secara online.",
+
+  saran: "1. Menambahkan fitur notifikasi real-time (WebSocket atau Supabase Realtime) agar admin mendapat pemberitahuan langsung saat ada pesanan baru.\n2. Mengintegrasikan payment gateway (Midtrans / DOKU) untuk mendukung pembayaran digital.\n3. Menambahkan fitur rating dan ulasan menu oleh pelanggan.\n4. Mengembangkan versi mobile (PWA atau React Native) agar lebih mudah diakses.\n5. Menambahkan laporan keuangan harian/bulanan dalam bentuk grafik untuk admin.",
+
+  lampiranSQL: "-- ============ DDL (PostgreSQL) ============\n\nCREATE TABLE IF NOT EXISTS users (\n  id SERIAL PRIMARY KEY,\n  nama VARCHAR(100) NOT NULL,\n  username VARCHAR(50) NOT NULL UNIQUE,\n  password VARCHAR(255) NOT NULL,\n  role VARCHAR(20) NOT NULL DEFAULT 'pelanggan' CHECK (role IN ('admin', 'pelanggan')),\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE TABLE IF NOT EXISTS kategori (\n  id SERIAL PRIMARY KEY,\n  nama_kategori VARCHAR(50) NOT NULL,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE TABLE IF NOT EXISTS menu (\n  id SERIAL PRIMARY KEY,\n  kategori_id INT NOT NULL,\n  nama_menu VARCHAR(100) NOT NULL,\n  deskripsi TEXT,\n  harga DECIMAL(10,2) NOT NULL,\n  gambar VARCHAR(255),\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  FOREIGN KEY (kategori_id) REFERENCES kategori(id) ON DELETE CASCADE\n);\n\nCREATE TABLE IF NOT EXISTS keranjang (\n  id SERIAL PRIMARY KEY,\n  user_id INT NOT NULL,\n  menu_id INT NOT NULL,\n  jumlah INT NOT NULL DEFAULT 1,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,\n  FOREIGN KEY (menu_id) REFERENCES menu(id) ON DELETE CASCADE\n);\n\nCREATE TABLE IF NOT EXISTS pesanan (\n  id SERIAL PRIMARY KEY,\n  user_id INT NOT NULL,\n  tanggal_pesan TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  total_harga DECIMAL(10,2) NOT NULL,\n  status VARCHAR(20) NOT NULL DEFAULT 'diproses' CHECK (status IN ('diproses', 'selesai', 'dibatalkan')),\n  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE\n);\n\nCREATE TABLE IF NOT EXISTS detail_pesanan (\n  id SERIAL PRIMARY KEY,\n  pesanan_id INT NOT NULL,\n  menu_id INT NOT NULL,\n  jumlah INT NOT NULL,\n  harga_satuan DECIMAL(10,2) NOT NULL,\n  FOREIGN KEY (pesanan_id) REFERENCES pesanan(id) ON DELETE CASCADE,\n  FOREIGN KEY (menu_id) REFERENCES menu(id) ON DELETE CASCADE\n);\n\n-- ============ DML (Data Contoh) ============\n\nINSERT INTO users (nama, username, password, role) VALUES\n('Administrator', 'admin', '$2a$10$O03Vl18/X9fC.Jt7BvR9yOiZ.6G41Z0g6A7i5Z124458i/i9lA/1C', 'admin')\nON CONFLICT (username) DO NOTHING;\n\nINSERT INTO kategori (nama_kategori) VALUES ('Makanan'), ('Minuman'), ('Snack');\n\nINSERT INTO menu (kategori_id, nama_menu, deskripsi, harga, gambar) VALUES\n(1, 'Nasi Goreng Spesial', 'Nasi goreng dengan telur, ayam, dan sayuran pilihan', 15000, ''),\n(1, 'Mie Ayam Bakso', 'Mie ayam kuah dengan bakso sapi segar', 12000, ''),\n(2, 'Es Teh Manis', 'Teh manis dingin segar', 5000, ''),\n(2, 'Jus Jeruk', 'Jus jeruk segar tanpa pemanis buatan', 8000, ''),\n(3, 'Pisang Goreng', 'Pisang goreng crispy 3 buah', 6000, '');\n\nINSERT INTO pesanan (user_id, total_harga, status) VALUES (1, 27000, 'selesai');\nINSERT INTO detail_pesanan (pesanan_id, menu_id, jumlah, harga_satuan) VALUES\n(1, 1, 1, 15000), (1, 3, 1, 5000), (1, 5, 1, 6000);",
+
+  githubRepo: "https://github.com/nabilarizky13/Project-SQL-Kantin-Ku",
+  videoLink: "https://youtu.be/(id-video-demo)",
+
+  referensi: "1. Dokumentasi resmi Express.js — https://expressjs.com/\n2. Dokumentasi resmi PostgreSQL — https://www.postgresql.org/docs/\n3. Dokumentasi Supabase — https://supabase.com/docs\n4. Dokumentasi Netlify Functions — https://docs.netlify.com/functions/overview/\n5. EJS Template Engine — https://ejs.co/\n6. npm: bcrypt — https://www.npmjs.com/package/bcrypt\n7. npm: connect-pg-simple — https://www.npmjs.com/package/connect-pg-simple",
+
+  pernyataanAI: "Saya menyatakan bahwa proyek KantinKu dan dokumen RND ini merupakan hasil karya sendiri berdasarkan pemahaman yang telah dipelajari selama perkuliahan Pemrograman SQL II. Penggunaan bantuan AI (jika ada) hanya digunakan sebagai referensi dan alat bantu pemahaman konsep, dan setiap baris kode telah saya pelajari, pahami, dan verifikasi secara mandiri.",
+
+  __schemas: [
+    {
+      nama: "users",
+      kolom: [
+        {nama:"id",tipe:"SERIAL",isPK:true,isNotNull:true,refTable:"",refCol:""},
+        {nama:"nama",tipe:"VARCHAR(100)",isPK:false,isNotNull:true,refTable:"",refCol:""},
+        {nama:"username",tipe:"VARCHAR(50)",isPK:false,isNotNull:true,refTable:"",refCol:""},
+        {nama:"password",tipe:"VARCHAR(255)",isPK:false,isNotNull:true,refTable:"",refCol:""},
+        {nama:"role",tipe:"VARCHAR(20)",isPK:false,isNotNull:true,refTable:"",refCol:""},
+        {nama:"created_at",tipe:"TIMESTAMP",isPK:false,isNotNull:false,refTable:"",refCol:""}
+      ]
+    },
+    {
+      nama: "kategori",
+      kolom: [
+        {nama:"id",tipe:"SERIAL",isPK:true,isNotNull:true,refTable:"",refCol:""},
+        {nama:"nama_kategori",tipe:"VARCHAR(50)",isPK:false,isNotNull:true,refTable:"",refCol:""},
+        {nama:"created_at",tipe:"TIMESTAMP",isPK:false,isNotNull:false,refTable:"",refCol:""}
+      ]
+    },
+    {
+      nama: "menu",
+      kolom: [
+        {nama:"id",tipe:"SERIAL",isPK:true,isNotNull:true,refTable:"",refCol:""},
+        {nama:"kategori_id",tipe:"INT",isPK:false,isNotNull:true,refTable:"kategori",refCol:"id"},
+        {nama:"nama_menu",tipe:"VARCHAR(100)",isPK:false,isNotNull:true,refTable:"",refCol:""},
+        {nama:"deskripsi",tipe:"TEXT",isPK:false,isNotNull:false,refTable:"",refCol:""},
+        {nama:"harga",tipe:"DECIMAL(10,2)",isPK:false,isNotNull:true,refTable:"",refCol:""},
+        {nama:"gambar",tipe:"VARCHAR(255)",isPK:false,isNotNull:false,refTable:"",refCol:""},
+        {nama:"created_at",tipe:"TIMESTAMP",isPK:false,isNotNull:false,refTable:"",refCol:""}
+      ]
+    },
+    {
+      nama: "keranjang",
+      kolom: [
+        {nama:"id",tipe:"SERIAL",isPK:true,isNotNull:true,refTable:"",refCol:""},
+        {nama:"user_id",tipe:"INT",isPK:false,isNotNull:true,refTable:"users",refCol:"id"},
+        {nama:"menu_id",tipe:"INT",isPK:false,isNotNull:true,refTable:"menu",refCol:"id"},
+        {nama:"jumlah",tipe:"INT",isPK:false,isNotNull:true,refTable:"",refCol:""},
+        {nama:"created_at",tipe:"TIMESTAMP",isPK:false,isNotNull:false,refTable:"",refCol:""}
+      ]
+    },
+    {
+      nama: "pesanan",
+      kolom: [
+        {nama:"id",tipe:"SERIAL",isPK:true,isNotNull:true,refTable:"",refCol:""},
+        {nama:"user_id",tipe:"INT",isPK:false,isNotNull:true,refTable:"users",refCol:"id"},
+        {nama:"tanggal_pesan",tipe:"TIMESTAMP",isPK:false,isNotNull:false,refTable:"",refCol:""},
+        {nama:"total_harga",tipe:"DECIMAL(10,2)",isPK:false,isNotNull:true,refTable:"",refCol:""},
+        {nama:"status",tipe:"VARCHAR(20)",isPK:false,isNotNull:true,refTable:"",refCol:""}
+      ]
+    },
+    {
+      nama: "detail_pesanan",
+      kolom: [
+        {nama:"id",tipe:"SERIAL",isPK:true,isNotNull:true,refTable:"",refCol:""},
+        {nama:"pesanan_id",tipe:"INT",isPK:false,isNotNull:true,refTable:"pesanan",refCol:"id"},
+        {nama:"menu_id",tipe:"INT",isPK:false,isNotNull:true,refTable:"menu",refCol:"id"},
+        {nama:"jumlah",tipe:"INT",isPK:false,isNotNull:true,refTable:"",refCol:""},
+        {nama:"harga_satuan",tipe:"DECIMAL(10,2)",isPK:false,isNotNull:true,refTable:"",refCol:""}
+      ]
+    }
+  ],
+
+  __mockup: [],
+  __screenshot: [],
+
+  __testCases: [
+    {id:1,skenario:"Registrasi akun pelanggan baru",hasilDiharapkan:"Akun berhasil dibuat, redirect ke login dengan pesan sukses",status:"Berhasil",buktiGambar:[]},
+    {id:2,skenario:"Login sebagai admin (username: admin)",hasilDiharapkan:"Sesi terbuat, redirect otomatis ke /admin (dashboard)",status:"Berhasil",buktiGambar:[]},
+    {id:3,skenario:"Login sebagai pelanggan",hasilDiharapkan:"Sesi terbuat, redirect ke beranda / dengan daftar menu",status:"Berhasil",buktiGambar:[]},
+    {id:4,skenario:"Login dengan password salah",hasilDiharapkan:"Muncul pesan error 'Password salah!', tidak masuk ke sistem",status:"Berhasil",buktiGambar:[]},
+    {id:5,skenario:"Admin tambah kategori menu baru",hasilDiharapkan:"Kategori tersimpan di database dan muncul di list kategori",status:"Berhasil",buktiGambar:[]},
+    {id:6,skenario:"Admin edit kategori yang sudah ada",hasilDiharapkan:"Perubahan nama kategori tersimpan dan tampil di list",status:"Berhasil",buktiGambar:[]},
+    {id:7,skenario:"Admin hapus kategori (cascade ke menu)",hasilDiharapkan:"Kategori dan semua menu terkait terhapus dari database",status:"Berhasil",buktiGambar:[]},
+    {id:8,skenario:"Admin tambah menu baru dengan upload gambar",hasilDiharapkan:"Menu tersimpan, gambar terupload ke Supabase Storage, URL gambar tersimpan di kolom gambar",status:"Berhasil",buktiGambar:[]},
+    {id:9,skenario:"Admin edit menu (update harga)",hasilDiharapkan:"Harga menu berubah dan tampil di beranda pelanggan",status:"Berhasil",buktiGambar:[]},
+    {id:10,skenario:"Admin hapus menu",hasilDiharapkan:"Menu terhapus, tidak muncul lagi di beranda pelanggan",status:"Berhasil",buktiGambar:[]},
+    {id:11,skenario:"Pelanggan filter menu berdasarkan kategori",hasilDiharapkan:"Hanya menu dari kategori yang dipilih yang ditampilkan",status:"Berhasil",buktiGambar:[]},
+    {id:12,skenario:"Pelanggan tambah menu ke keranjang",hasilDiharapkan:"Item masuk ke keranjang, badge counter keranjang bertambah",status:"Berhasil",buktiGambar:[]},
+    {id:13,skenario:"Pelanggan tambah menu yang sama dua kali",hasilDiharapkan:"Jumlah item di keranjang bertambah (bukan duplikat baris baru)",status:"Berhasil",buktiGambar:[]},
+    {id:14,skenario:"Pelanggan hapus item dari keranjang",hasilDiharapkan:"Item terhapus dari keranjang, total harga diperbarui",status:"Berhasil",buktiGambar:[]},
+    {id:15,skenario:"Pelanggan checkout keranjang",hasilDiharapkan:"Pesanan terbuat di tabel pesanan dan detail_pesanan, keranjang dikosongkan, redirect ke riwayat pesanan dengan pesan sukses",status:"Berhasil",buktiGambar:[]},
+    {id:16,skenario:"Admin update status pesanan (diproses ke selesai)",hasilDiharapkan:"Status pesanan berubah di database dan ditampilkan di halaman pesanan admin",status:"Berhasil",buktiGambar:[]},
+    {id:17,skenario:"Akses halaman admin tanpa login",hasilDiharapkan:"Redirect otomatis ke /login (proteksi middleware requireAdmin)",status:"Berhasil",buktiGambar:[]},
+    {id:18,skenario:"Pelanggan coba akses /admin",hasilDiharapkan:"Redirect otomatis ke /login karena role bukan admin",status:"Berhasil",buktiGambar:[]}
+  ],
+
+  __nextTestCaseId: 19
+};
+
+fs.writeFileSync('prefill_data.json', JSON.stringify(data, null, 2), 'utf8');
+console.log('Done! File size:', fs.statSync('prefill_data.json').size, 'bytes');
