@@ -96,8 +96,8 @@ router.get('/menu', async (req, res) => {
 
         res.render('admin/menu', { menus, kategoris, edit_data });
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Error');
+        console.error('GET /admin/menu error:', err);
+        res.status(500).send('<pre>GET menu error: ' + err.message + '</pre>');
     }
 });
 
@@ -134,8 +134,8 @@ router.post('/menu', upload.single('gambar'), async (req, res) => {
         }
         res.redirect('/admin/menu');
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Error');
+        console.error('POST /admin/menu error:', err);
+        res.status(500).send('<pre>POST menu error: ' + err.message + '\n\nStack: ' + err.stack + '</pre>');
     }
 });
 
